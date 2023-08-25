@@ -1,0 +1,40 @@
+version: '3.7'
+services:
+
+  mysql:
+    image: mysql:5.7
+    container_name: mysql
+    platform: linux/x86_64
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-volumes:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: admin12345678
+      MYSQL_DATABASE: todo
+
+  laravel-app:
+    build:
+      context: ./docker/php
+    container_name: laravel-app
+    volumes:
+      - ./laravel/:/home/source/main
+    working_dir: /home/source/main
+
+  nginx:
+    build:
+      context: ./docker/nginx
+    container_name: todo-nginx
+    ports:
+      - "8000:80"
+    depends_on:
+      - laravel-app
+    volumes:
+      - ./laravel/:/home/source/main
+
+volumes:
+  mysql-volumes:
+
+networks:
+  default:
+    name: laravel-app-netword
